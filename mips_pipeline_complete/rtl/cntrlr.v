@@ -11,33 +11,28 @@
 
 
 module controller(
-	clk,
-	rst,
-	opcode,
-	func,
-	RegDst,
-	Jmp,
-	DataC,
-	Regwrite,
-	AluSrc,
-	Branch,
-	MemRead,
-	MemWrite,
-	MemtoReg,
-	AluOperation
+	input      [5:0] opcode,
+	input      [5:0] func,
+	output reg RegDst,
+	output reg DataC,
+	output reg RegWrite,
+	output reg Branch,
+	output reg MemRead,
+	output reg MemWrite,
+
+	output reg [1:0] PCSrc_o,
+	output reg [2:0] AluOperation,
+
+	output reg imm_en_o
 	);
-	input 				clk,rst;
-	input      [5:0] 	opcode,func;
-	output reg [1:0]	RegDst,Jmp;
-	output reg		    DataC,Regwrite,AluSrc,Branch,MemRead,MemWrite,MemtoReg;
-	output reg [2:0]    AluOperation;
+
 
 	always@(opcode,func) begin
-		    {RegDst,Jmp,DataC,Regwrite,AluSrc,Branch,MemRead,MemWrite,MemtoReg,AluOperation}=0;
+		    {imm_en_o, RegDst,PCSrc_o,DataC,RegWrite,Branch,MemRead,MemWrite,AluOperation}=0;
 			case(opcode) 
 				`RT: begin
-					RegDst=2'b01;
-					Regwrite=1;
+					RegDst=1'b0; // rd_EX
+					RegWrite=1;
 					AluOperation=func[2:0];
 					if (func == 6'b100010) // Sub
 						AluOperation = 3'b011;
@@ -45,48 +40,52 @@ module controller(
 						AluOperation = 3'b100;
 				 end
 				`addi: begin
-					Regwrite=1;
-					AluSrc=1;
+					RegWrite=1;
+					RegDst = 1; // rt_EX
 					AluOperation=3'b010;
+					imm_en_o = 1;
 				 end
 				`addiu: begin
-					Regwrite=1;
-					AluSrc=1;
+					RegDst = 1;	// rt_EX
+					RegWrite=1;
 					AluOperation=3'b010;
+					imm_en_o = 1;
 				 end
 				`slti: begin
-					Regwrite=1;
-					AluSrc=1;
+					RegDst = 1;	// rt_EX
+					RegWrite=1;
 					AluOperation=3'b100;
+					imm_en_o = 1;
 				 end
 				`lw: begin
-					Regwrite=1;
-					AluSrc=1;
+					RegWrite=1;
+					RegDst = 1;	// rt_EX
 					AluOperation=3'b010;
 					MemRead=1;
-					MemtoReg=1;
+					imm_en_o = 1;
 				 end
 				`sw: begin
-					AluSrc=1;
 					AluOperation=3'b010;
 					MemWrite=1;
+					imm_en_o=1;
 				 end
 				`beq: begin
 					AluOperation=3'b011;
 					Branch=1;
 				 end
 				`j: begin
-					Jmp=2'b01;
+					PCSrc_o = 2'b01;
 
 				 end
 				`jal: begin
 					RegDst=2'b10;
 					DataC=1;
-					Regwrite=1;
-					Jmp=2'b01;
+					RegWrite=1;
+					PCSrc_o = 2'b01;
+					
 				 end
 				`jr: begin
-					Jmp=2'b10;
+					PCSrc_o = 2'b10;
 				 end
 			endcase
 	end
