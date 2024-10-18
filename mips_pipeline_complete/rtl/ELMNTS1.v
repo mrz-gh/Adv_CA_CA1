@@ -8,9 +8,9 @@ module mux2_to_1 #(parameter num_bit)(input [num_bit-1:0]data1,data2, input sel,
 	assign out=~sel?data1:data2;
 endmodule
 
-module sign_extension(input [15:0]primary, output [31:0] extended);
+module sign_extension(input [15:0]primary,input signed_imm, output [31:0] extended);
 
-	assign extended=$signed(primary);
+	assign extended=(signed_imm)?$signed(primary):{16'b0,primary};
 endmodule
 
 module shl2 #(parameter num_bit)(input [num_bit-1:0]adr, output [num_bit-1:0]sh_adr);
@@ -27,6 +27,8 @@ module alu(input [31:0]data1,data2, input [2:0]alu_op, output reg[31:0]alu_resul
 			3'b001:	alu_result=data1 | data2;
 			3'b010:	alu_result=data1 + data2;
 			3'b011:	alu_result=data1 - data2;
+			3'b110: alu_result=data1 ^ data2;
+			3'b111: alu_result={data2[31:16],16'b0};
 			3'b100: begin
 				alu_result= (data1 - data2);
 				alu_result= alu_result[31] ? 32'b1:32'b0;

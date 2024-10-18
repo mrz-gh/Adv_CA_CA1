@@ -14,13 +14,14 @@ module mips(
 
 	wire [31:0] write_data_reg_MEM, write_data_reg_WB;
 	wire [31:0] alu_result_EX, alu_result_MEM;
-	wire [31:0] instruction_IF, instruction_ID;
+	wire [31:0] instruction_IF, instruction_ID,instruction_EX;
 	wire [4:0] 	write_reg_EX, write_reg_MEM, write_reg_WB;
 	wire [31:0] read_data1_reg_ID, read_data1_reg_EX;
 	wire [31:0] read_data2_ID, read_data2_EX; // Data2 in ID stage
 	wire [31:0] read_data2_reg_ID, read_data2_reg_EX, read_data2_reg_MEM;
 	wire [31:0] imm_extended_ID, imm_extended_EX;
 	wire imm_en;
+	wire signed_imm;
 	wire write_reg_sel_ID, write_reg_sel_EX;
 	wire [31:0] read_data_mem;
 
@@ -44,7 +45,8 @@ module mips(
 	
 	inst_memory InstMem(.clk(clk),.rst(rst),.adr(pc_IF),.instruction(instruction_IF));
 
-	assign in_pc = (zero_EX & Branch_EX) ?  (pc_ID + (imm_extended_EX << 2)) : 
+	assign in_pc = (instruction_EX[31:26]==6'b000100 && zero_EX && Branch_EX) ?  (pc_ID + (imm_extended_EX << 2)) :
+				(instruction_EX[31:26]== 6'b000101 && (~zero_EX) && Branch_EX) ?  (pc_ID + (imm_extended_EX << 2)) : 
 				(PCSrc_ID == 2'b00) ?  pc4_IF:
 				(PCSrc_ID == 2'b01) ?  {pc_IF[31:28], instruction_ID[25:0] ,2'b00} :
 				(PCSrc_ID == 2'b10) ?  read_data1_reg_ID : 32'd0; // beq, bne
@@ -72,28 +74,29 @@ module mips(
 		.MemWrite(MemWrite_ID),
 	
 		.AluOperation(AluOperation_ID),
-		.imm_en_o(imm_en)
+		.imm_en_o(imm_en),
+		.signed_imm(signed_imm)
 		);
 
 	reg_file RegFile(.clk(clk), .rst(rst), .RegWrite(RegWrite_WB),.read_reg1(instruction_ID[25:21]),
 					.read_reg2(instruction_ID[20:16]), .write_reg(write_reg_WB),.write_data(write_data_reg_WB),
 					.read_data1(read_data1_reg_ID),.read_data2(read_data2_reg_ID));
 
-	sign_extension sign_ext(.primary(instruction_ID[15:0]),.extended(imm_extended_ID));
+	sign_extension sign_ext(.primary(instruction_ID[15:0]),.signed_imm(signed_imm),.extended(imm_extended_ID));
 
 	mux2_to_1 #(32) read_data2_mux (.data1(read_data2_reg_ID),.data2(imm_extended_ID),.sel(imm_en),.out(read_data2_ID));
 
 	assign rt_ID = instruction_ID[20:16];
 	assign rd_ID = instruction_ID[15:11];
 	///////////// EX Stage /////////////////////////////
-	register #(146) ID_EX_preg(
+	register #(178) ID_EX_preg(
 		.clk_i (clk),
 		.rst_ni(~rst),
 		.clear_i(0),
 		.ld_i(1'b1),
-		.reg_di({Branch_ID, imm_extended_ID, write_reg_sel_ID, MemWrite_ID, MemRead_ID, 
+		.reg_di({instruction_ID,Branch_ID, imm_extended_ID, write_reg_sel_ID, MemWrite_ID, MemRead_ID, 
 				AluOperation_ID, RegWrite_ID, rd_ID, rt_ID, read_data1_reg_ID, read_data2_ID, read_data2_reg_ID}),
-		.reg_qo({Branch_EX, imm_extended_EX, write_reg_sel_EX, MemWrite_EX, MemRead_EX, 
+		.reg_qo({instruction_EX,Branch_EX, imm_extended_EX, write_reg_sel_EX, MemWrite_EX, MemRead_EX, 
 				AluOperation_EX, RegWrite_EX, rd_EX, rt_EX, read_data1_reg_EX, read_data2_EX, read_data2_reg_EX})
 	);
 
