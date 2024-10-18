@@ -8,6 +8,12 @@
 `define j      6'b000010  // jump
 `define jal    6'b000011  // jump and link
 `define jr     6'b000000  // JR is an R-type instruction, uses opcode 000000
+`define sltiu  6'b001011  // set on less than immediate unsigned
+`define andi   6'b001100  // AND immediate
+`define ori    6'b001101  // OR immediate
+`define xori   6'b001110  // XOR immediate
+`define lui    6'b001111  // Load Upper Immediate
+`define bne    6'b000101  // branch if not equal
 
 
 module controller(
@@ -24,55 +30,105 @@ module controller(
 	MemRead,
 	MemWrite,
 	MemtoReg,
-	AluOperation
+	AluOperation,
+	signed_imm
 	);
 	input 				clk,rst;
 	input      [5:0] 	opcode,func;
 	output reg [1:0]	RegDst,Jmp;
 	output reg		    DataC,Regwrite,AluSrc,Branch,MemRead,MemWrite,MemtoReg;
-	output reg [2:0]    AluOperation;
+	output reg [3:0]    AluOperation;
+	output reg			signed_imm;
 
 	always@(opcode,func) begin
 		    {RegDst,Jmp,DataC,Regwrite,AluSrc,Branch,MemRead,MemWrite,MemtoReg,AluOperation}=0;
 			case(opcode) 
+
+				`sltiu: begin
+               
+				Regwrite=1;
+				AluOperation=4'b0100;
+				AluSrc=1;
+            	end
+            	`andi: begin
+					
+            	    Regwrite = 1;
+            	    AluSrc=1;
+            	    AluOperation = 4'b0000; 
+            	end
+            	`ori: begin
+					
+            	    Regwrite = 1;
+            	    AluSrc=1;
+            	    AluOperation = 4'b0001; 
+            	end
+            	`xori: begin
+					
+            	    Regwrite = 1;
+            	    AluSrc=1;
+            	    AluOperation = 4'b0110; 
+            	end
+            	`lui: begin
+
+            	    Regwrite = 1;
+            	    AluSrc=1;
+            	    AluOperation = 4'b0111; // Assuming a unique ALU code for LUI
+            	end
+            	`bne: begin
+            	    AluOperation=4'b0011;
+					Branch=1;
+            	end
 				`RT: begin
 					RegDst=2'b01;
 					Regwrite=1;
-					AluOperation=func[2:0];
-					if (func == 6'b100010) // Sub
-						AluOperation = 3'b011;
-					else if (func == 6'b101010) // Slt
-						AluOperation = 3'b100;
+					case (func)
+						6'b100010: AluOperation = 4'b0011; // Sub
+						6'b101010: AluOperation = 4'b0100; // Slt
+						6'b100000: AluOperation = 4'b0010; // add
+						6'b100001: AluOperation = 4'b0010; // addu
+						6'b100011: AluOperation = 4'b0011; // subu
+						6'b101011: AluOperation = 4'b0100; // sltu
+						6'b100100: AluOperation = 4'b0000; // and
+						6'b100101: AluOperation = 4'b0001; // or
+						6'b100110: AluOperation = 4'b0110; // xor
+						6'b100111: AluOperation = 4'b0101; // nor
+						6'b000000: AluOperation = 4'b1000; // sll
+						6'b000010: AluOperation = 4'b1001; // srl
+						6'b000011: AluOperation = 4'b1010; // sra
+						6'b000100: AluOperation = 4'b1011; // sllv
+						6'b000110: AluOperation = 4'b1100; // srlv
+						6'b000111: AluOperation = 4'b1101; // srav
+					endcase
 				 end
 				`addi: begin
 					Regwrite=1;
 					AluSrc=1;
-					AluOperation=3'b010;
+					AluOperation=4'b0010;
 				 end
 				`addiu: begin
 					Regwrite=1;
 					AluSrc=1;
-					AluOperation=3'b010;
+					AluOperation=4'b0010;
 				 end
 				`slti: begin
 					Regwrite=1;
 					AluSrc=1;
-					AluOperation=3'b100;
+					AluOperation=4'b0100;
 				 end
 				`lw: begin
 					Regwrite=1;
 					AluSrc=1;
-					AluOperation=3'b010;
+					AluOperation=4'b0010;
 					MemRead=1;
 					MemtoReg=1;
 				 end
 				`sw: begin
 					AluSrc=1;
-					AluOperation=3'b010;
+					AluOperation=4'b0010;
 					MemWrite=1;
 				 end
 				`beq: begin
-					AluOperation=3'b011;
+					AluOperation=4'b0011;
 					Branch=1;
 				 end
 				`j: begin
