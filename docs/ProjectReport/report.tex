@@ -30,11 +30,22 @@
 
 	\section{پیاده سازی 
 		\lr{single cycle}}
-		مدار مورد مطالعه همان مدار CA قبلی است.
+		شماتیک پیاده سازی 
+		\lr{single cycle}
+		به صورت زیر است.
+		\begin{figure}[H]
+			\begin{center}
+				\includegraphics[width=10cm]{Photos/single_cycle.png}
+			\end{center}
+			\caption{شماتیک پیاده سازی 
+			\lr{single cycle}
+			}
+			\label{single_cycle}
+		\end{figure}
 	
 
 		
-	\section{برنامه تست}
+	\subsection{برنامه تست}
 	برنامه پیدا کردن بزرگترین عنصر بین 10 عنصر داخل حافظه داده در شکل (
 	\ref{step0_pic0}
 	)
@@ -65,6 +76,30 @@
 	\end{figure}
 	
 	
+	\subsection{نتایج شبیه سازی}
+	
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=10cm, height=5cm]{Photos/5.png}
+			\includegraphics[width=10cm, height=5cm]{Photos/6.png}
+		\end{center}
+		\caption{شبیه سازی 
+		\lr{single cycle}
+		}
+		\label{Single_cycle_sim}
+	\end{figure}
+	
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=7cm]{Photos/9.png}
+		\end{center}
+		\caption{حافظه داده در انتهای شبیه سازی 
+		\lr{single cycle}
+		}
+		\label{Single_cycle_data_mem}
+	\end{figure}
+	
+	
 	\section{پیاده سازی پایپ لاین}
 	
 	\begin{figure}[H]
@@ -76,7 +111,7 @@
 	\end{figure}
  
 
-	\section{برنامه تست پایپ لاین}
+	\subsection{برنامه تست پایپ لاین}
 	برنامه تست پایپ لاین همان برنامه تست 
 	\lr{single cycle}
 	است با این تفاوت که بین تمام دو دستور، سه دستور 
@@ -90,9 +125,29 @@
 		\begin{center}
 			\includegraphics[width=7cm]{Photos/4.png}
 		\end{center}
-		\caption{شماتیک مسیرداده پایپ لاین}
-		\label{Pipeline_schamitic}
+		\caption{حافظه دستورات در پایپ لاین}
+		\label{Pipeline_inst_test}
 	\end{figure}
+	
+	\subsection{نتایج شبیه سازی}
+	
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=10cm]{Photos/7.png}
+			\includegraphics[width=10cm]{Photos/8.png}
+		\end{center}
+		\caption{شبیه سازی پایپ لاین}
+		\label{Pipeline_sim}
+	\end{figure}
+	
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=7cm]{Photos/9.png}
+		\end{center}
+		\caption{حافظه داده در انتهای شبیه سازی پایپ لاین}
+		\label{Pipeline_data_mem}
+	\end{figure}
+	
 	
 
  
