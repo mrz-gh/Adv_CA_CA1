@@ -1,4 +1,12 @@
+# Specific files and folders
 /CA1.pdf
 /mips_single_cycle.zip
 
+# Simulation files
 work
+transcript
+*.wlf
+# TeX auxilary files
+*.toc
+*.log
+*.aux
