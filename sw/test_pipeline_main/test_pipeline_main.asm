@@ -1,6 +1,6 @@
 .data
 array: .word 5, -3, 12, 7, -8, 19, 0, -15, 22, 10  # 10-element array
-length: .word 10
+length: .word 11
 maxValue: .word 0
 
 .text

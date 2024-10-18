@@ -6,6 +6,8 @@
 # For examples deployed with UVMF this will be $(UVMF_HOME)/<example_group>/project_benches/<example_bench>
 export PROJECT_DIR ?= $(PWD)/..
 
+TEST_NAME=test_pipeline_main
+
 
 VERILOG_DUT = \
 +incdir+$(PROJECT_DIR)/rtl \
@@ -22,6 +24,10 @@ DEBUG_DO_COMMANDS = -do "wave.do" -do "run -all"
 BATCH_DO_COMMANDS = -do "run -all" 
 
 default: help
+
+cpy_inst_data_mem : 
+	cp ../../sw/$(TEST_NAME)/$(TEST_NAME)_inst.bin ./instructionmemory.txt
+	cp ../../sw/$(TEST_NAME)/$(TEST_NAME)_data.bin ./datamemory.txt
 
 
 libs:
@@ -67,8 +73,8 @@ cli_run:
 
 
 
-cli: clean libs build optimize cli_run
-debug gui: clean libs build optimize gui_run
+cli: clean cpy_inst_data_mem libs build optimize cli_run
+debug gui: clean cpy_inst_data_mem libs build optimize gui_run
 
 
 # Common targets
