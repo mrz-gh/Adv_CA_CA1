@@ -41,7 +41,7 @@ module controller(
 	output reg			signed_imm;
 
 	always@(opcode,func) begin
-		    {RegDst,Jmp,DataC,Regwrite,AluSrc,Branch,MemRead,MemWrite,MemtoReg,AluOperation}=0;
+		    {signed_imm,RegDst,Jmp,DataC,Regwrite,AluSrc,Branch,MemRead,MemWrite,MemtoReg,AluOperation}=0;
 			case(opcode) 
 
 				`sltiu: begin
@@ -101,6 +101,7 @@ module controller(
 					endcase
 				 end
 				`addi: begin
+					signed_imm=1;
 					Regwrite=1;
 					AluSrc=1;
 					AluOperation=4'b0010;
@@ -111,11 +112,13 @@ module controller(
 					AluOperation=4'b0010;
 				 end
 				`slti: begin
+					signed_imm=1;
 					Regwrite=1;
 					AluSrc=1;
 					AluOperation=4'b0100;
 				 end
 				`lw: begin
+					signed_imm=1;
 					Regwrite=1;
 					AluSrc=1;
 					AluOperation=4'b0010;
@@ -126,6 +129,7 @@ module controller(
 					AluSrc=1;
 					AluOperation=4'b0010;
 					MemWrite=1;
+					signed_imm=1;
 				 end
 				`beq: begin
 					AluOperation=4'b0011;
