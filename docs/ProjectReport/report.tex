@@ -9,12 +9,14 @@
 \newcommand{\mm}{\vspace{1mm}}
 
 
-\title{گزارش تمرین کامپیوتری اول درس معماری کامپیوتر پیشرفته}
-\author{ امیررضا غلامی\mm \\
-	شماره دانشجویی : 810198446 \\
+\title{گزارش تمرین کامپیوتری اول
 	\\
-	پارسا منفرد \\
-	شماره دانشجویی :
+	 درس معماری کامپیوتر پیشرفته}
+\author{ امیررضا غلامی\mm \\
+	شماره دانشجویی : 810103196 \\
+	\\
+	پارسا حداد منفرد \\
+	شماره دانشجویی : 810103103
 }
 \date{\today}
 
@@ -47,7 +49,7 @@
 		
 	\subsection{برنامه تست}
 	برنامه پیدا کردن بزرگترین عنصر بین 10 عنصر داخل حافظه داده در شکل (
-	\ref{step0_pic0}
+	\ref{test_asm}
 	)
 	به تصویر کشیده شده است. 
 	\begin{figure}[H]
@@ -76,6 +78,18 @@
 	\end{figure}
 	
 	
+		
+	علاوه بر تست فوق، تست دیگری مبنی بر بررسی تمام دستورات زده شده انجام شده است. دستورات NOP به این دلیل است که این تست برای پایپ لاین هم به کار برده شود.
+	
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=7cm]{Photos/11.png}
+		\end{center}
+		\caption{تست دوم پایپ لاین}
+		\label{mips2_pipeline}
+	\end{figure}
+	
+	
 	\subsection{نتایج شبیه سازی}
 	
 	\begin{figure}[H]
@@ -99,6 +113,14 @@
 		\label{Single_cycle_data_mem}
 	\end{figure}
 	
+	\begin{figure}[H]
+		\begin{center}
+			\includegraphics[width=7cm]{Photos/10.jpg}
+		\end{center}
+		\caption{ نتایج شبیه سازی تست دوم}
+		\label{mips2_single_cycle}
+	\end{figure}
+	
 	
 	\section{پیاده سازی پایپ لاین}
 	
@@ -112,7 +134,7 @@
  
 
 	\subsection{برنامه تست پایپ لاین}
-	برنامه تست پایپ لاین همان برنامه تست 
+	برنامه اول تست پایپ لاین همان برنامه تست 
 	\lr{single cycle}
 	است با این تفاوت که بین تمام دو دستور، سه دستور 
 	\lr{NOP}
@@ -129,16 +151,7 @@
 		\label{Pipeline_inst_test}
 	\end{figure}
 	
-	
-	علاوه بر تست فوق، تست دیگری مبنی بر بررسی تمام دستورات زده شده انجام شده است.
-	
-	\begin{figure}[H]
-		\begin{center}
-			\includegraphics[width=7cm]{Photos/11.png}
-		\end{center}
-		\caption{تست دوم پایپ لاین}
-		\label{mips2_pipeline}
-	\end{figure}
+
 	
 	
 	
@@ -165,7 +178,7 @@
 نتایج شبیه سازی تست دوم که تست تمام دستورات است به شرح زیر است:
 	\begin{figure}[H]
 		\begin{center}
-			\includegraphics[width=7cm]{Photos/10.png}
+			\includegraphics[width=7cm]{Photos/10.jpg}
 		\end{center}
 		\caption{نتایج شبیه سازی تست دوم پایپ لاین}
 		\label{mips2_pipeline_sim}
