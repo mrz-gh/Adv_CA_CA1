@@ -18,7 +18,7 @@ module shl2 #(parameter num_bit)(input [num_bit-1:0]adr, output [num_bit-1:0]sh_
 	assign sh_adr=adr<<2;
 endmodule
 
-module alu(input [31:0]data1,data2, input [2:0]alu_op, output reg[31:0]alu_result, output zero_flag);
+module alu(input [31:0]data1,data2, input [2:0]alu_op,input signed_imm, output reg[31:0]alu_result, output zero_flag);
 	
 	always@(alu_op,data1,data2) begin
 		alu_result=32'b0;
