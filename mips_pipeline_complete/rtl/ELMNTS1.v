@@ -18,18 +18,26 @@ module shl2 #(parameter num_bit)(input [num_bit-1:0]adr, output [num_bit-1:0]sh_
 	assign sh_adr=adr<<2;
 endmodule
 
-module alu(input [31:0]data1,data2, input [2:0]alu_op,input signed_imm, output reg[31:0]alu_result, output zero_flag);
+module alu(input [31:0]data1,data2, input [3:0]alu_op,input [4:0]shamt,input signed_imm, output reg[31:0]alu_result, output zero_flag);
 	
 	always@(alu_op,data1,data2) begin
 		alu_result=32'b0;
 		case (alu_op)
-			3'b000: alu_result=data1 & data2;
-			3'b001:	alu_result=data1 | data2;
-			3'b010:	alu_result=data1 + data2;
-			3'b011:	alu_result=data1 - data2;
-			3'b110: alu_result=data1 ^ data2;
-			3'b111: alu_result={data2[31:16],16'b0};
-			3'b100: begin
+			4'b0000: 	alu_result=data1 & data2;
+			4'b0001:	alu_result=data1 | data2;
+			4'b0010:	alu_result=data1 + data2;
+			4'b0011:	alu_result=data1 - data2;
+			4'b0110: 	alu_result=data1 ^ data2;
+			4'b0111: 	alu_result={data2[31:16],16'b0};
+			4'b0101:    alu_result=~(data1 | data2);
+			4'b1000:	alu_result=data2 << shamt;
+			4'b1001:	alu_result=data2 >> shamt;
+			4'b1010:	alu_result=$signed(data2) >>> shamt;
+			4'b1011:	alu_result=data1 << data2[4:0];
+			4'b1100:	alu_result=data1 >> data2[4:0];
+			4'b1101:	alu_result=$signed(data1) >>> data2[4:0];
+
+			4'b0100: begin
 				alu_result= (data1 - data2);
 				alu_result= alu_result[31] ? 32'b1:32'b0;
 			end

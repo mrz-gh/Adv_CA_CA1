@@ -25,7 +25,7 @@ module mips(
 	wire write_reg_sel_ID, write_reg_sel_EX;
 	wire [31:0] read_data_mem;
 
-	wire [2:0] AluOperation_ID, AluOperation_EX;
+	wire [3:0] AluOperation_ID, AluOperation_EX;
 
 	wire [31:0] in_pc, pc_IF, pc4_IF, pc_ID;
 	wire [4:0] rd_ID, rd_EX, rt_ID, rt_EX;
@@ -89,7 +89,7 @@ module mips(
 	assign rt_ID = instruction_ID[20:16];
 	assign rd_ID = instruction_ID[15:11];
 	///////////// EX Stage /////////////////////////////
-	register #(179) ID_EX_preg(
+	register #(180) ID_EX_preg(
 		.clk_i (clk),
 		.rst_ni(~rst),
 		.clear_i(0),
@@ -106,6 +106,7 @@ module mips(
 		.alu_op(AluOperation_EX),
 		.alu_result(alu_result_EX),
 		.zero_flag(zero_EX),
+		.shamt(instruction_EX[10:6]),
 		.signed_imm(signed_imm_EX)
 		);
 
