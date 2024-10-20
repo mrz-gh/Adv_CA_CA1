@@ -7,7 +7,6 @@
 `define beq    6'b000100  // branch if equal
 `define j      6'b000010  // jump
 `define jal    6'b000011  // jump and link
-`define jr     6'b000000  // JR is an R-type instruction, uses opcode 000000
 `define sltiu  6'b001011  // set on less than immediate unsigned
 `define andi   6'b001100  // AND immediate
 `define ori    6'b001101  // OR immediate
@@ -91,6 +90,13 @@ module controller(
 				6'b000100: AluOperation = 4'b1011; // sllv
 				6'b000110: AluOperation = 4'b1100; // srlv
 				6'b000111: AluOperation = 4'b1101; // srav
+				6'b001000: PCSrc_o = 2'b10;		   // jr
+				6'b001001: begin				   // jalr
+					PCSrc_o = 2'b10;
+					DataC=1;
+					RegWrite=1;
+				end	
+				
 				endcase
 			 end
 			`addi: begin
@@ -140,9 +146,6 @@ module controller(
 				RegWrite=1;
 				PCSrc_o = 2'b01;
 				
-			 end
-			`jr: begin
-				PCSrc_o = 2'b10;
 			 end
 			endcase
 	end

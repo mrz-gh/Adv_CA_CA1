@@ -22,6 +22,7 @@ module mips(
 	wire [31:0] imm_extended_ID, imm_extended_EX;
 	wire imm_en;
 	wire [4:0] write_reg;
+	wire [31:0] write_data;
 	wire DataC_ID, DataC_EX, DataC_MEM, DataC_WB;
 	wire signed_imm_ID,signed_imm_EX;
 	wire write_reg_sel_ID, write_reg_sel_EX;
@@ -29,7 +30,8 @@ module mips(
 
 	wire [3:0] AluOperation_ID, AluOperation_EX;
 
-	wire [31:0] in_pc, pc_IF, pc4_IF, pc_ID;
+	wire [31:0] in_pc, pc_IF, pc_ID;
+	wire [31:0] pc4_IF, pc4_ID, pc4_EX, pc4_MEM, pc4_WB;
 	wire [4:0] rd_ID, rd_EX, rt_ID, rt_EX;
 
 	wire [1:0] PCSrc_ID;
@@ -56,13 +58,13 @@ module mips(
 
 	
 	///////////// ID Stage /////////////////////////////
-	register #(64) IF_ID_preg(
+	register #(96) IF_ID_preg(
 		.clk_i (clk),
 		.rst_ni(~rst),
 		.clear_i(1'b0),
 		.ld_i(1'b1),
-		.reg_di({pc_IF, instruction_IF}),
-		.reg_qo({pc_ID, instruction_ID})
+		.reg_di({pc_IF, pc4_IF, instruction_IF}),
+		.reg_qo({pc_ID, pc4_ID, instruction_ID})
 	);
 	controller CU(
 		.opcode(instruction_ID[31:26]),
@@ -81,27 +83,29 @@ module mips(
 		);
 
 	reg_file RegFile(.clk(clk), .rst(rst), .RegWrite(RegWrite_WB),.read_reg1(instruction_ID[25:21]),
-					.read_reg2(instruction_ID[20:16]), .write_reg(write_reg),.write_data(write_data_reg_WB),
+					.read_reg2(instruction_ID[20:16]), .write_reg(write_reg),.write_data(write_data),
 					.read_data1(read_data1_reg_ID),.read_data2(read_data2_reg_ID));
 
 	sign_extension sign_ext(.primary(instruction_ID[15:0]),.signed_imm(signed_imm_ID),.extended(imm_extended_ID));
 
 	mux2_to_1 #(5) writereg_mux (.data1(write_reg_WB),.data2(5'b11111),.sel(DataC_WB),.out(write_reg));
 
+	mux2_to_1 #(32) writedata_mux (.data1(write_data_reg_WB),.data2(pc4_WB),.sel(DataC_WB),.out(write_data));
+
 	mux2_to_1 #(32) read_data2_mux (.data1(read_data2_reg_ID),.data2(imm_extended_ID),.sel(imm_en),.out(read_data2_ID));
 
 	assign rt_ID = instruction_ID[20:16];
 	assign rd_ID = instruction_ID[15:11];
 	///////////// EX Stage /////////////////////////////
-	register #(181) ID_EX_preg(
+	register #(213) ID_EX_preg(
 		.clk_i (clk),
 		.rst_ni(~rst),
 		.clear_i(1'b0),
 		.ld_i(1'b1),
-		.reg_di({instruction_ID,Branch_ID, imm_extended_ID, write_reg_sel_ID, MemWrite_ID, MemRead_ID, 
+		.reg_di({pc4_ID,instruction_ID,Branch_ID, imm_extended_ID, write_reg_sel_ID, MemWrite_ID, MemRead_ID, 
 				AluOperation_ID, RegWrite_ID, rd_ID, rt_ID, read_data1_reg_ID, read_data2_ID, read_data2_reg_ID,signed_imm_ID
 				,DataC_ID}),
-		.reg_qo({instruction_EX,Branch_EX, imm_extended_EX, write_reg_sel_EX, MemWrite_EX, MemRead_EX, 
+		.reg_qo({pc4_EX,instruction_EX,Branch_EX, imm_extended_EX, write_reg_sel_EX, MemWrite_EX, MemRead_EX, 
 				AluOperation_EX, RegWrite_EX, rd_EX, rt_EX, read_data1_reg_EX, read_data2_EX, read_data2_reg_EX,signed_imm_EX
 				,DataC_EX})
 	);
@@ -121,14 +125,14 @@ module mips(
 
 	
 	///////////// MEM Stage /////////////////////////////
-	register #(73) EX_MEM_preg(
+	register #(105) EX_MEM_preg(
 		.clk_i (clk),
 		.rst_ni(~rst),
 		.clear_i(1'b0),
 		.ld_i(1'b1),
-		.reg_di({MemWrite_EX, MemRead_EX, RegWrite_EX, write_reg_EX,
+		.reg_di({pc4_EX,MemWrite_EX, MemRead_EX, RegWrite_EX, write_reg_EX,
 				 read_data2_reg_EX, alu_result_EX,DataC_EX}),
-		.reg_qo({MemWrite_MEM, MemRead_MEM, RegWrite_MEM, write_reg_MEM,
+		.reg_qo({pc4_MEM,MemWrite_MEM, MemRead_MEM, RegWrite_MEM, write_reg_MEM,
 				 read_data2_reg_MEM, alu_result_MEM,DataC_MEM})
 	);
 	
@@ -141,13 +145,13 @@ module mips(
 
 	
 	///////////// WB Stage /////////////////////////////
-	register #(39) MEM_WB_preg(
+	register #(71) MEM_WB_preg(
 		.clk_i (clk),
 		.rst_ni(~rst),
 		.clear_i(1'b0),
 		.ld_i(1'b1),
-		.reg_di({RegWrite_MEM, write_reg_MEM, write_data_reg_MEM,DataC_MEM}),
-		.reg_qo({RegWrite_WB, write_reg_WB, write_data_reg_WB,DataC_WB})
+		.reg_di({pc4_MEM,RegWrite_MEM, write_reg_MEM, write_data_reg_MEM,DataC_MEM}),
+		.reg_qo({pc4_WB,RegWrite_WB, write_reg_WB, write_data_reg_WB,DataC_WB})
 	);
 
 
