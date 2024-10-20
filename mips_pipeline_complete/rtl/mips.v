@@ -21,8 +21,8 @@ module mips(
 	wire [31:0] read_data2_reg_ID, read_data2_reg_EX, read_data2_reg_MEM;
 	wire [31:0] imm_extended_ID, imm_extended_EX;
 	wire imm_en;
-	wire write_reg;
-	wire DataC_ID, DataC_EX, DataC_MEM, DataC_WB
+	wire [4:0] write_reg;
+	wire DataC_ID, DataC_EX, DataC_MEM, DataC_WB;
 	wire signed_imm_ID,signed_imm_EX;
 	wire write_reg_sel_ID, write_reg_sel_EX;
 	wire [31:0] read_data_mem;
@@ -59,7 +59,7 @@ module mips(
 	register #(64) IF_ID_preg(
 		.clk_i (clk),
 		.rst_ni(~rst),
-		.clear_i(0),
+		.clear_i(1'b0),
 		.ld_i(1'b1),
 		.reg_di({pc_IF, instruction_IF}),
 		.reg_qo({pc_ID, instruction_ID})
@@ -81,12 +81,12 @@ module mips(
 		);
 
 	reg_file RegFile(.clk(clk), .rst(rst), .RegWrite(RegWrite_WB),.read_reg1(instruction_ID[25:21]),
-					.read_reg2(instruction_ID[20:16]), .write_reg(),.write_data(write_data_reg_WB),
+					.read_reg2(instruction_ID[20:16]), .write_reg(write_reg),.write_data(write_data_reg_WB),
 					.read_data1(read_data1_reg_ID),.read_data2(read_data2_reg_ID));
 
 	sign_extension sign_ext(.primary(instruction_ID[15:0]),.signed_imm(signed_imm_ID),.extended(imm_extended_ID));
 
-	mux2_to_1 #(32) read_data2_mux (.data1(write_reg_WB),.data2(5'b11111),.sel(DataC_WB),.out(write_reg));
+	mux2_to_1 #(5) writereg_mux (.data1(write_reg_WB),.data2(5'b11111),.sel(DataC_WB),.out(write_reg));
 
 	mux2_to_1 #(32) read_data2_mux (.data1(read_data2_reg_ID),.data2(imm_extended_ID),.sel(imm_en),.out(read_data2_ID));
 
@@ -96,7 +96,7 @@ module mips(
 	register #(181) ID_EX_preg(
 		.clk_i (clk),
 		.rst_ni(~rst),
-		.clear_i(0),
+		.clear_i(1'b0),
 		.ld_i(1'b1),
 		.reg_di({instruction_ID,Branch_ID, imm_extended_ID, write_reg_sel_ID, MemWrite_ID, MemRead_ID, 
 				AluOperation_ID, RegWrite_ID, rd_ID, rt_ID, read_data1_reg_ID, read_data2_ID, read_data2_reg_ID,signed_imm_ID
@@ -116,7 +116,7 @@ module mips(
 		.signed_imm(signed_imm_EX)
 		);
 
-	mux2_to_1 #(32) write_reg_mux (.data1(rd_EX),.data2(rt_EX),.sel(write_reg_sel_EX),.out(write_reg_EX));
+	mux2_to_1 #(5) write_reg_mux (.data1(rd_EX),.data2(rt_EX),.sel(write_reg_sel_EX),.out(write_reg_EX));
 
 
 	
@@ -124,7 +124,7 @@ module mips(
 	register #(73) EX_MEM_preg(
 		.clk_i (clk),
 		.rst_ni(~rst),
-		.clear_i(0),
+		.clear_i(1'b0),
 		.ld_i(1'b1),
 		.reg_di({MemWrite_EX, MemRead_EX, RegWrite_EX, write_reg_EX,
 				 read_data2_reg_EX, alu_result_EX,DataC_EX}),
@@ -144,7 +144,7 @@ module mips(
 	register #(39) MEM_WB_preg(
 		.clk_i (clk),
 		.rst_ni(~rst),
-		.clear_i(0),
+		.clear_i(1'b0),
 		.ld_i(1'b1),
 		.reg_di({RegWrite_MEM, write_reg_MEM, write_data_reg_MEM,DataC_MEM}),
 		.reg_qo({RegWrite_WB, write_reg_WB, write_data_reg_WB,DataC_WB})

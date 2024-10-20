@@ -28,7 +28,7 @@ module alu(input [31:0]data1,data2, input [3:0]alu_op,input [4:0]shamt,input sig
 			4'b0010:	alu_result=data1 + data2;
 			4'b0011:	alu_result=data1 - data2;
 			4'b0110: 	alu_result=data1 ^ data2;
-			4'b0111: 	alu_result={data2[31:16],16'b0};
+			4'b0111: 	alu_result={data2[15:0],16'b0};
 			4'b0101:    alu_result=~(data1 | data2);
 			4'b1000:	alu_result=data2 << shamt;
 			4'b1001:	alu_result=data2 >> shamt;
